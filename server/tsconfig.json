@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    // --- OUTPUT ---
+    "target": "ES2022",           // JS version to compile to. ES5 removed in TS 6.0.
+    "outDir": "./dist",           // Where compiled JS goes
+    "rootDir": "./src",           // Where your TS source lives (now required explicitly in 6.0)
+
+    // --- MODULE SYSTEM ---
+    "module": "NodeNext",         // Use Node's native ESM module resolution
+    "moduleResolution": "NodeNext", // How TS finds imports — matches Node's actual behavior
+
+    // --- STRICTNESS (on by default in TS 6.0) ---
+    "strict": true,               // Enables all strict checks (was opt-in before 6.0)
+
+    // --- TYPE SOURCES ---
+    "types": ["node"],            // REQUIRED in 6.0. Explicitly declare which @types/* to load.
+                                  // Without this, process, fs, Buffer etc. are unknown.
+
+    // --- MODERN TS ---
+    "verbatimModuleSyntax": true, // Enforces 'import type' for type-only imports. Cleaner output.
+    "esModuleInterop": true,      // Allows default imports from CommonJS modules
+    "resolveJsonModule": true,    // Allows: import data from './data.json'
+
+    // --- SAFETY ---
+    "skipLibCheck": true,         // Skip type checking of .d.ts files in node_modules (performance)
+    "forceConsistentCasingInFileNames": true, // Prevents casing bugs on case-insensitive filesystems (macOS)
+
+    "noUncheckedIndexedAccess": true, // array[0] returns T | undefined, not T. Safer.
+    "noImplicitOverride": true,   // Must use 'override' keyword when overriding class methods
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*"],        // Only compile files in /src
+  "exclude": ["node_modules", "dist"]
+}
