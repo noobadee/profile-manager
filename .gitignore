@@ -1,5 +1,9 @@
 node_modules/
 build/
 dist/
+tests/
+
+.env
+.env.test
 
 .data/
