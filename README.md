@@ -1,3 +1,3 @@
 # Profie Manager
 
-Status: Incomplete => In progress
+- It is currently in development mode.

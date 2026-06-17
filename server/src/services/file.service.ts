@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import chokidar from "chokidar";
 import type { CreateProfileInput, Manifest, Profile } from "../types/index.ts";
 import { randomUUID } from "node:crypto";
 
@@ -61,6 +60,21 @@ async function listProfiles(): Promise<Manifest> {
   return readManifest();
 }
 
+async function duplicateCheck(profile: Profile): Promise<void> {
+  const manifest = await readManifest();
+  const fullName = `${profile.identity.firstName ?? ""} ${profile.identity.middleName ?? ""} ${profile.identity.lastName ?? ""}`.trim().replace(/\s+/g, " ");
+
+  if (!manifest.profiles) {
+    return;
+  }
+
+  const isDuplicate = manifest.profiles.some((p) => p.fullName === fullName);
+
+  if (isDuplicate) {
+    throw new Error("Name already exists");
+  }
+}
+
 // create
 async function createProfile(input: CreateProfileInput): Promise<Profile> {
   const id = randomUUID();
@@ -86,6 +100,9 @@ async function createProfile(input: CreateProfileInput): Promise<Profile> {
     address: input.address ?? null,
   };
 
+  // Check if name already exits, reject if it does
+  await duplicateCheck(profile);
+
   await fs.writeFile(
     path.join(PROFILES_PATH, `${id}.json`),
     JSON.stringify(profile, null, 2),
@@ -96,7 +113,7 @@ async function createProfile(input: CreateProfileInput): Promise<Profile> {
   manifest.profiles.push({
     id,
     fullName:
-      `${profile.identity.firstName ?? ""} ${profile.identity.middleName ?? ""} ${profile.identity.lastName ?? ""}`.trim(),
+      `${profile.identity.firstName ?? ""} ${profile.identity.middleName ?? ""} ${profile.identity.lastName ?? ""}`.trim().replace(/\s+/g, " "),
     updatedAt: now,
   });
   await writeManifest(manifest);
