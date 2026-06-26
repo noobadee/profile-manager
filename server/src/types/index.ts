@@ -1,2 +1,3 @@
-export * from "./profile.types.ts";
-export * from "./manifest.types.ts";
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
