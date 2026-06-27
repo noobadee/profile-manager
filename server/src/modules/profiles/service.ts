@@ -6,22 +6,26 @@ import type {
   Profile,
 } from "./types.ts";
 import type { CreateProfileBody } from "./schemas.ts";
+import { BadRequestError, NotFoundError } from "../../common/errors/index.ts";
 
 export class ProfileService implements IProfileService {
   constructor(private readonly repo: IProfileRepository) {}
 
   async getProfile(id: string): Promise<Profile> {
     const profile = this.repo.findById(id);
+    if (!profile) throw new NotFoundError("Profile");
     return profile;
   }
 
   async getManifest(): Promise<Manifest> {
     const manifest = await this.repo.readManifest();
+    if (!manifest) throw new NotFoundError("Manifest");
     return manifest;
   }
 
   async getAllProfiles(): Promise<Profile[]> {
-    const manifest = await this.getManifest();
+    const manifest = await this.repo.readManifest();
+    if (!manifest) throw new NotFoundError("Manifest");
 
     const profiles = await Promise.all(
       manifest.profiles.map((entry) => this.getProfile(entry.id)),
@@ -31,6 +35,10 @@ export class ProfileService implements IProfileService {
   }
 
   async createProfile(data: CreateProfileBody): Promise<Profile> {
+    if (!data.lastName && !data.firstName) {
+      throw new BadRequestError("First or last name is required");
+    }
+
     const id = randomUUID();
     const now = new Date().toISOString();
 

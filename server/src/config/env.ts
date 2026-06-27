@@ -21,6 +21,7 @@ const envSchema = z.object({
     .min(1, "Server port is required")
     .max(65535, "Server port cannot exceed 65,535")
     .default(3000),
+  APP_STAGE: z.enum(["dev", "test", "production"]).default("dev"),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -32,5 +33,9 @@ if (!parsed.success) {
 }
 
 const env = parsed.data;
+
+export const isProd = () => env.APP_STAGE === "production";
+export const isDev = () => env.APP_STAGE === "dev";
+export const isTest = () => env.APP_STAGE === "test";
 
 export { env };

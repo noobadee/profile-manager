@@ -1,12 +1,20 @@
 import express from "express";
+import morgan from "morgan";
+import { profileRouter } from "./modules/profiles/router.ts";
+import { errorHandler } from "./common/middleware/errorHandler.ts";
+import { isTest } from "./config/env.ts";
 import type { Request, Response } from "express";
-import { profilesRouter } from "./modules/profiles/router.ts";
 
 const app = express();
 
 app.use(express.json());
+app.use(
+  morgan("dev", {
+    skip: () => isTest(),
+  }),
+);
 
-app.get("/health", (_req, res: Response) => {
+app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({
     status: "OK",
     timestamp: new Date().toISOString(),
@@ -14,6 +22,16 @@ app.get("/health", (_req, res: Response) => {
   });
 });
 
-app.use("/api/profiles", profilesRouter);
+app.use("/api/profiles", profileRouter);
+
+app.use((_req: Request, res: Response) => {
+  res.status(404).json({
+    status: "error",
+    errorCode: "ROUTE_NOT_FOUND",
+    message: "The requested route does not exist",
+  });
+});
+
+app.use(errorHandler);
 
 export default app;

@@ -1,5 +1,7 @@
+import { ValidationError } from "../errors/index.ts";
 import type { Request, Response, NextFunction } from "express";
 import { type ZodType, ZodError, z } from "zod";
+import type { ValidationFieldError } from "../types/index.ts";
 
 interface ValidationTargets<
   TBody extends ZodType = ZodType,
@@ -16,17 +18,12 @@ interface ValidatedRequest<TBody = unknown, TParams = unknown> extends Request {
   };
 }
 
-interface ValidationErrorResponse {
-  status: "error";
-  code: "VALIDATION_ERROR";
-  message: string;
-  errors: ValidationFieldError[];
-}
-
-interface ValidationFieldError {
-  field: string;
-  message: string;
-}
+// interface ValidationErrorResponse {
+//   status: "error";
+//   code: "VALIDATION_ERROR";
+//   message: string;
+//   errors: ValidationFieldError[];
+// }
 
 function formatZodErrors(
   error: ZodError,
@@ -69,14 +66,17 @@ export function validate<TBody extends ZodType, TParams extends ZodType>(
     }
 
     if (allErrors.length > 0) {
-      const body: ValidationErrorResponse = {
-        status: "error",
-        code: "VALIDATION_ERROR",
-        message: `Validation failed on: ${[...new Set(allErrors.map((e) => e.field.split(".")[0]))].join(", ")}`,
-        errors: allErrors,
-      };
-
-      res.status(400).json(body);
+      // const body: ValidationErrorResponse = {
+      //   status: "error",
+      //   code: "VALIDATION_ERROR",
+      //   message: `Validation failed on: ${[...new Set(allErrors.map((e) => e.field.split(".")[0]))].join(", ")}`,
+      //   errors: allErrors,
+      // };
+      // res.status(400).json(body);
+      const sections = [
+        ...new Set(allErrors.map((e) => e.field.split(".")[0])),
+      ].join(", ");
+      next(new ValidationError(`Validation failed on: ${sections}`, allErrors));
       return;
     }
 
