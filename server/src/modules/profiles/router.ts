@@ -12,11 +12,17 @@ const service = new ProfileService(repository);
 const controller = new ProfileController(service);
 
 router.get("/", controller.getAll);
+router.get("/:id", validate({ params: ParameterIdSchema }), controller.getOne);
 router.post("/", validate({ body: CreateProfileSchema }), controller.create);
 router.put(
   "/:id",
   validate({ params: ParameterIdSchema, body: CreateProfileSchema }),
   controller.update,
+);
+router.delete(
+  "/:id",
+  validate({ params: ParameterIdSchema }),
+  controller.delete,
 );
 
 export { router as profileRouter };

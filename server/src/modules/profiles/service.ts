@@ -17,15 +17,9 @@ export class ProfileService implements IProfileService {
   constructor(private readonly repo: IProfileRepository) {}
 
   async getProfile(id: string): Promise<Profile> {
-    const profile = this.repo.findById(id);
+    const profile = await this.repo.findById(id).catch(() => null);
     if (!profile) throw new NotFoundError("Profile");
     return profile;
-  }
-
-  async getManifest(): Promise<Manifest> {
-    const manifest = await this.repo.readManifest();
-    if (!manifest) throw new NotFoundError("Manifest");
-    return manifest;
   }
 
   async getAllProfiles(): Promise<Profile[]> {
@@ -178,5 +172,27 @@ export class ProfileService implements IProfileService {
     }
 
     return updatedProfile;
+  }
+
+  async deleteProfile(id: string): Promise<Profile> {
+    const existingProfile = await this.repo.findById(id).catch(() => null);
+
+    if (!existingProfile) {
+      throw new NotFoundError("Profile");
+    }
+
+    // 1) Delete profile
+    await this.repo.delete(id);
+
+    // 2) Update manifest
+    const manifest = await this.repo.readManifest();
+    if (manifest.profiles) {
+      const newManifest = {
+        profiles: manifest.profiles.filter((p) => p.id !== id),
+      };
+      await this.repo.write(newManifest);
+    }
+
+    return existingProfile;
   }
 }

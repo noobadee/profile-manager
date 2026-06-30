@@ -11,6 +11,12 @@ export class ProfileController {
     sendSuccess({ res, data: profiles });
   };
 
+  getOne = async (req: Request, res: Response) => {
+    const params = req.params as ParameterId;
+    const profile = await this.service.getProfile(params.id);
+    sendSuccess({ res, data: profile });
+  };
+
   create = async (req: Request, res: Response) => {
     const body = req.body as CreateProfileBody;
     const profile = await this.service.createProfile(body);
@@ -30,6 +36,17 @@ export class ProfileController {
       res,
       data: profile,
       message: "Successfully updated the profile",
+      httpStatus: 201,
+    });
+  };
+
+  delete = async (req: Request, res: Response) => {
+    const params = req.params as ParameterId;
+    const profile = await this.service.deleteProfile(params.id);
+    sendSuccess({
+      res,
+      data: profile,
+      message: "Successfully deleted the profile",
       httpStatus: 201,
     });
   };

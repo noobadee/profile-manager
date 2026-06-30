@@ -10,11 +10,11 @@ export interface IProfileRepository {
 }
 
 export interface IProfileService {
-  getProfile(id: string): Promise<Profile>;
-  getManifest(): Promise<Manifest>;
   getAllProfiles(): Promise<Profile[]>;
+  getProfile(id: string): Promise<Profile>;
   createProfile(data: CreateProfileBody): Promise<Profile>;
   updateProfile(id: string, updateBody: CreateProfileBody): Promise<Profile>;
+  deleteProfile(id: string): Promise<Profile>;
 }
 
 export interface Profile {
