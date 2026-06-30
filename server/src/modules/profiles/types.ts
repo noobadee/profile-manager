@@ -14,6 +14,7 @@ export interface IProfileService {
   getManifest(): Promise<Manifest>;
   getAllProfiles(): Promise<Profile[]>;
   createProfile(data: CreateProfileBody): Promise<Profile>;
+  updateProfile(id: string, updateBody: CreateProfileBody): Promise<Profile>;
 }
 
 export interface Profile {

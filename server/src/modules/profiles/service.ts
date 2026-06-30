@@ -72,13 +72,13 @@ export class ProfileService implements IProfileService {
         updatedAt: now,
       },
       identity: {
-        lastName: data.lastName,
-        firstName: data.firstName,
-        middleName: data.middleName,
+        lastName: data.lastName && data.lastName.trim(),
+        firstName: data.firstName && data.firstName.trim(),
+        middleName: data.middleName && data.middleName.trim(),
         age: data.age,
-        dateOfBirth: data.dateOfBirth,
+        dateOfBirth: data.dateOfBirth && data.dateOfBirth.trim(),
         gender: data.gender,
-        nationality: data.nationality,
+        nationality: data.nationality && data.nationality.trim(),
       },
       contacts: data.contacts,
       socialAccounts: data.socialAccounts,
@@ -123,5 +123,60 @@ export class ProfileService implements IProfileService {
     }
 
     return newProfile;
+  }
+
+  async updateProfile(
+    id: string,
+    updateBody: CreateProfileBody,
+  ): Promise<Profile> {
+    // First or last name is required
+    if (!updateBody.lastName && !updateBody.firstName) {
+      throw new BadRequestError("First or last name is required");
+    }
+
+    const existingProfile = await this.repo.findById(id).catch(() => null);
+
+    if (!existingProfile) {
+      throw new NotFoundError("Profile");
+    }
+
+    const updatedNow = new Date().toISOString();
+
+    // 1) Update profile
+    const { contacts, socialAccounts, address, ...identity } = updateBody;
+    const updatedProfile: Profile = {
+      ...existingProfile,
+
+      id: existingProfile.id,
+      meta: {
+        ...existingProfile.meta,
+        updatedAt: updatedNow,
+      },
+      identity: {
+        ...existingProfile.identity,
+        ...identity,
+      },
+      contacts: updateBody.contacts,
+      socialAccounts: updateBody.socialAccounts,
+      address: updateBody.address,
+    };
+    await this.repo.create(updatedProfile);
+
+    // 2) Update manifest
+    const { lastName, firstName, middleName } = updateBody;
+    const manifest = await this.repo.readManifest();
+    if (manifest.profiles) {
+      const newManifest = {
+        profiles: manifest.profiles.filter((p) => p.id !== id),
+      };
+      newManifest.profiles.push({
+        id,
+        name: formatName(firstName, middleName, lastName),
+        updatedAt: updatedNow,
+      });
+      await this.repo.write(newManifest);
+    }
+
+    return updatedProfile;
   }
 }

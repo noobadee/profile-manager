@@ -1,7 +1,7 @@
 import { sendSuccess } from "../../utils/response.ts";
 import type { Request, Response } from "express";
 import type { IProfileService } from "./types.ts";
-import type { CreateProfileBody } from "./schemas.ts";
+import type { CreateProfileBody, ParameterId } from "./schemas.ts";
 
 export class ProfileController {
   constructor(private readonly service: IProfileService) {}
@@ -18,6 +18,18 @@ export class ProfileController {
       res,
       data: profile,
       message: "Successfully created a new profile",
+      httpStatus: 201,
+    });
+  };
+
+  update = async (req: Request, res: Response) => {
+    const params = req.params as ParameterId;
+    const body = req.body as CreateProfileBody;
+    const profile = await this.service.updateProfile(params.id, body);
+    sendSuccess({
+      res,
+      data: profile,
+      message: "Successfully updated the profile",
       httpStatus: 201,
     });
   };
