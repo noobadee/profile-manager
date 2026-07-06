@@ -17,6 +17,10 @@ export interface IProfileService {
   deleteProfile(id: string): Promise<Profile>;
 }
 
+// export type CreateProfileInput = Prettify<
+//   Omit<Profile, "id" | "meta" | "identity"> & Profile["identity"]
+// >;
+
 export interface Profile {
   id: string;
   meta: {
@@ -36,10 +40,6 @@ export interface Profile {
   socialAccounts: SocialAccounts[] | null;
   address: Address | null;
 }
-
-// export type CreateProfileInput = Prettify<
-//   Omit<Profile, "id" | "meta" | "identity"> & Profile["identity"]
-// >;
 
 export interface Contacts {
   emails: string[] | null;
