@@ -3,9 +3,20 @@ import morgan from "morgan";
 import { profileRouter } from "./modules/profiles/router.ts";
 import { errorHandler } from "./common/middleware/errorHandler.ts";
 import { isTest } from "./config/env.ts";
+import cors from "cors";
+import { env } from "./config/env.ts";
 import type { Request, Response } from "express";
 
 const app = express();
+
+// ──── CORS ────────────────────────────────────────────────────────────────────────────
+
+app.use(
+  cors({
+    origin: env.CLIENT_ORIGIN,
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 app.use(

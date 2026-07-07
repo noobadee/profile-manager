@@ -21,6 +21,7 @@ const envSchema = z.object({
     .min(1, "Server port is required")
     .max(65535, "Server port cannot exceed 65,535")
     .default(3000),
+  CLIENT_ORIGIN: z.string().min(1, "Client origin is required"),
   APP_STAGE: z.enum(["dev", "test", "production"]).default("dev"),
 });
 

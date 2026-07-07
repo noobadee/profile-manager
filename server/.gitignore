@@ -27,4 +27,3 @@ build/
 tests/
 .env
 .env.test
-.data/
